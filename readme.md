@@ -1,1 +1,1 @@
-sajdhaljsdh
+Jotora Fullstack Blogging project.
