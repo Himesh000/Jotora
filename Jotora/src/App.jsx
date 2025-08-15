@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import "./App.css";
-import authService from "./appwrite/auth.js";
-import { login, logout } from "./store/authSlice.js";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
+import authService from "./appwrite/auth";
+import { login, logout } from "./store/authSlice";
+import { Footer, Header } from "./components";
+import { Outlet } from "react-router-dom";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -20,29 +20,20 @@ function App() {
           dispatch(logout());
         }
       })
-      .catch((error) => {
-        console.error("Error fetching user data:", error);
-        dispatch(logout());
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [dispatch]);
+      .finally(() => setLoading(false));
+  }, []);
 
   return !loading ? (
-    <div className="App">
-      <Header />
-      <main className="container mx-auto p-4">
-        {/* Your main content goes here */}
-        <h1 className="text-2xl font-bold">Welcome to Jotora</h1>
-      </main>
-      <Footer />
+    <div className="min-h-screen flex flex-wrap content-between bg-gray-900">
+      <div className="w-full block">
+        <Header />
+        <main>
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
-  ) : (
-    <div className="flex items-center justify-center h-screen">
-      <p>Loading...</p>
-    </div>
-  );
+  ) : null;
 }
 
 export default App;

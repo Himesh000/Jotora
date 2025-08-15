@@ -15,12 +15,8 @@ export class AuthService {
 
   async createAccount({ email, password, name }) {
     try {
-      const response = await this.account.create(
-        ID.unique(),
-        email,
-        password,
-        name
-      );
+      const response = await this.account.create(ID.unique(), email, password, name);
+
       if (response) {
         console.log("Account created successfully:", response);
         return this.login({ email, password });
@@ -36,9 +32,13 @@ export class AuthService {
 
   async login({ email, password }) {
     try {
-      const response = await this.account.createEmailSession(email, password);
+      const response = await this.account.createEmailPasswordSession(
+        email,
+        password
+      );
       if (response) {
         console.log("Login successful:", response);
+        return response;
       } else {
         console.log("Login failed.");
         return response;

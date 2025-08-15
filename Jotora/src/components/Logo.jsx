@@ -2,7 +2,7 @@ import React from "react";
 
 function Logo({ width = "100px" }) {
   return (
-    <div className="logo" style={{ width }}>
+    <div className="text-4xl font-bold" style={{ width }}>
       <h1>Jotora</h1>
     </div>
   );

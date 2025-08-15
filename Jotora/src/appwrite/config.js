@@ -1,4 +1,4 @@
-import conf from "../conf.js";
+import conf from "../conf/conf.js";
 import { Client, ID, Databases, Storage, Query } from "appwrite";
 
 export class Service {
@@ -19,7 +19,7 @@ export class Service {
     try {
       const response = await this.databases.createDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollectiontId,
+        conf.appwriteCollectionId,
         slug,
         {
           title,
@@ -27,7 +27,7 @@ export class Service {
           content,
           featuredImage,
           status,
-          userId,
+          user,
         }
       );
       console.log("Post created successfully:", response);
@@ -42,7 +42,7 @@ export class Service {
     try {
       const response = await this.databases.updateDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollectiontId,
+        conf.appwriteCollectionId,
         slug,
         {
           title,
@@ -63,7 +63,7 @@ export class Service {
     try {
       const response = await this.databases.deleteDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollectiontId,
+        conf.appwriteCollectionId,
         slug
       );
       console.log("Post deleted successfully:", response);
@@ -78,7 +78,7 @@ export class Service {
     try {
       const response = await this.databases.getDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollectiontId,
+        conf.appwriteCollectionId,
         slug
       );
       console.log("Post fetched successfully:", response);
@@ -93,7 +93,7 @@ export class Service {
     try {
       const response = await this.databases.listDocuments(
         conf.appwriteDatabaseId,
-        conf.appwriteCollectiontId,
+        conf.appwriteCollectionId,
         queries
       );
       console.log("Posts fetched successfully:", response);
