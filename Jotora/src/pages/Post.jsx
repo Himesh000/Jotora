@@ -37,9 +37,11 @@ export default function Post() {
       <Container>
         <div className="w-full flex justify-center mb-4 relative border rounded-xl p-2">
           <img
-            src={appwriteService.getFilePreview(post.featuredImage)}
+            src={appwriteService.getFileView(post.featuredImage)}
             alt={post.title}
-            className="rounded-xl"
+            className="w-full aspect-[16/9] object-cover rounded-xl bg-gray-200"
+            loading="lazy"
+            onError={(e) => (e.currentTarget.src = "/placeholder.png")}
           />
 
           {isAuthor && (

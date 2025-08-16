@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "..";
-import appwriteService from "../../appwrite/config";
+import appwriteService, { account } from "../../appwrite/config";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -20,40 +20,30 @@ export default function PostForm({ post }) {
   const userData = useSelector((state) => state.auth.userData);
 
   const submit = async (data) => {
-    if (post) {
-      const file = data.image[0]
-        ? await appwriteService.uploadFile(data.image[0])
-        : null;
-
-      if (file) {
-        appwriteService.deleteFile(post.featuredImage);
+    const user = await account.get();
+    console.log("User data:", user);
+    try {
+      if (!user || !user.$id) {
+        throw new Error("User not logged in. Cannot create post.");
       }
 
-      const dbPost = await appwriteService.updatePost(post.$id, {
+      let file = null;
+      if (data.image && data.image[0]) {
+        file = await appwriteService.uploadFile(data.image[0], user.$id);
+        data.featuredImage = file.$id;
+      }
+
+      const dbPost = await appwriteService.createPost({
         ...data,
-        featuredImage: file ? file.$id : undefined,
+        user: user.$id,
+        status: "active",
       });
 
       if (dbPost) {
         navigate(`/post/${dbPost.$id}`);
       }
-    } else {
-      const file = data.image[0]
-        ? await appwriteService.uploadFile(data.image[0])
-        : null;
-
-      if (file) {
-        const fileId = file.$id;
-        data.featuredImage = fileId;
-        const dbPost = await appwriteService.createPost({
-          ...data,
-          user: userData.$id,
-        });
-
-        if (dbPost) {
-          navigate(`/post/${dbPost.$id}`);
-        }
-      }
+    } catch (err) {
+      console.error("Error in submit:", err.message || err);
     }
   };
 
@@ -116,9 +106,11 @@ export default function PostForm({ post }) {
         {post && (
           <div className="w-full mb-4">
             <img
-              src={appwriteService.getFilePreview(post.featuredImage)}
-              alt={post.title}
-              className="rounded-lg"
+              src={src}
+              alt={title || "Post image"}
+              loading="lazy"
+              onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+              className="w-full aspect-[4/3] object-cover rounded-xl bg-gray-200"
             />
           </div>
         )}

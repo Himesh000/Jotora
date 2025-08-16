@@ -1,10 +1,19 @@
 import conf from "../conf/conf.js";
-import { Client, ID, Databases, Storage, Query } from "appwrite";
-
+import authService from "./auth.js";
+import {
+  Client,
+  Databases,
+  Storage,
+  Account,
+  Permission,
+  Role,
+  ID,
+} from "appwrite";
 export class Service {
   client = new Client();
   databases;
   bucket;
+  account;
 
   constructor() {
     this.client
@@ -13,27 +22,43 @@ export class Service {
 
     this.databases = new Databases(this.client);
     this.bucket = new Storage(this.client);
+    this.account = new Account(this.client);
   }
 
-  async createPost({ title, slug, content, featuredImage, status, userId }) {
+  async createPost({ title, slug, content, featuredImage, status, user }) {
+    if (!user) {
+      console.error("❌ createPost failed: User is missing");
+      throw new Error("User ID is required");
+    }
+
+    if (!title || !content || !featuredImage) {
+      console.error("❌ createPost failed: Missing required fields", {
+        title,
+        content,
+        featuredImage,
+      });
+      throw new Error("Missing required fields");
+    }
+
     try {
       const response = await this.databases.createDocument(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
-        slug,
+        ID.unique(),
         {
           title,
           slug,
           content,
           featuredImage,
           status,
-          user,
+          user, // ✅ This must exist in Appwrite schema
         }
       );
-      console.log("Post created successfully:", response);
+
+      console.log("✅ Post created successfully:", response);
       return response;
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("❌ Error creating post:", error);
       throw error;
     }
   }
@@ -89,7 +114,7 @@ export class Service {
     }
   }
 
-  async getPosts({ queries = [Query.equal("status", "active")] }) {
+  async getPosts({ queries = [Query.equal("status", "active")] } = {}) {
     try {
       const response = await this.databases.listDocuments(
         conf.appwriteDatabaseId,
@@ -108,10 +133,11 @@ export class Service {
 
   async uploadFile(file) {
     try {
+      const user = await authService.getCurrentUser();
       const response = await this.bucket.createFile(
         conf.appwriteBucketId,
         ID.unique(),
-        file
+        file,
       );
       console.log("File uploaded successfully:", response);
       return response;
@@ -135,13 +161,13 @@ export class Service {
     }
   }
 
-  async getFilePreview(fileId) {
+  async getFileView(fileId) {
     try {
-      const response = await this.bucket.getFilePreview(
+      const response = await this.bucket.getFileView(
         conf.appwriteBucketId,
         fileId
       );
-      console.log("File preview fetched successfully:", response);
+      console.log("File view fetched successfully:", response);
       return response;
     } catch (error) {
       console.error("Error fetching file preview:", error);
@@ -153,3 +179,4 @@ export class Service {
 const service = new Service();
 
 export default service;
+export const account = service.account;
