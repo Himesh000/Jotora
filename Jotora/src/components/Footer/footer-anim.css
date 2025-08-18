@@ -1,0 +1,63 @@
+/* Footer animation styles */
+.footer-anim-root {
+  transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.2, 1), opacity 0.7s ease,
+    box-shadow 0.7s ease;
+}
+.footer-anim-root.translate-hidden {
+  transform: translateY(24px);
+  opacity: 0;
+}
+.footer-anim-root.translate-shown {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.footer-gradient-anim {
+  width: 180px;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a18fff 0%, #6dd5ed 50%, #ff6a88 100%);
+  background-size: 200% 200%;
+  box-shadow: 0 12px 40px rgba(161, 143, 255, 0.12);
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.footer-anim-root.visible .footer-gradient-anim {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: gradientShift 6s linear infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* subtle glow sweep */
+.footer-sweep {
+  position: absolute;
+  left: -40%;
+  top: -40%;
+  width: 60%;
+  height: 200%;
+  background: radial-gradient(
+    closest-side,
+    rgba(160, 120, 255, 0.06),
+    transparent 40%
+  );
+  transform: rotate(-18deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.footer-anim-root.visible .footer-sweep {
+  opacity: 1;
+}

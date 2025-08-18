@@ -27,54 +27,66 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full">
-      <div
-        className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}>
-        <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-[100px]">
-            <Logo width="100%" />
-          </span>
-        </div>
-        <h2 className="text-center text-2xl font-bold leading-tight">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-base text-black/60">
-          Don&apos;t have any account?&nbsp;
-          <Link
-            to="/signup"
-            className="font-medium text-primary transition-all duration-200 hover:underline">
-            Sign Up
-          </Link>
-        </p>
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
-        <form onSubmit={handleSubmit(login)} className="mt-8">
-          <div className="space-y-5">
-            <Input
-              label="Email: "
-              placeholder="Enter your email"
-              type="email"
-              {...register("email", {
-                required: true,
-                validate: {
-                  matchPattern: (value) =>
-                    /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                    "Email address must be a valid address",
-                },
-              })}
-            />
-            <Input
-              label="Password: "
-              type="password"
-              placeholder="Enter your password"
-              {...register("password", {
-                required: true,
-              })}
-            />
-            <Button type="submit" className="w-full">
-              Sign in
-            </Button>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-black to-slate-900 text-slate-100 flex items-center">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(99,102,241,0.08),transparent_8%),radial-gradient(circle_at_90%_80%,rgba(255,106,136,0.06),transparent_8%)] pointer-events-none" />
+
+      <div className="w-full">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center py-16 px-6">
+          <div>
+            <h1
+              className="text-6xl md:text-7xl font-extralight mb-2"
+              style={{
+                fontFamily: "'Edu NSW ACT Hand Cursive', system-ui, sans-serif",
+              }}>
+              Jotora
+            </h1>
+            <h2 className="text-2xl font-medium text-slate-200/90 mb-4">
+              Sign in to your account
+            </h2>
+            <p className="text-slate-400 max-w-md">
+              Welcome back - resume creating your stories, exploring ideas, and
+              connecting with readers.
+            </p>
+            <div className="mt-8 flex gap-4 items-center">
+              <div className="w-24 h-1 rounded-full bg-gradient-to-r from-purple-400 via-sky-400 to-pink-400 shadow-lg" />
+              <div className="text-sm text-slate-500">
+                Secure sign-in · Fast publishing
+              </div>
+            </div>
           </div>
-        </form>
+
+          <div>
+            <div className="mx-auto max-w-md bg-slate-900/50 backdrop-blur rounded-3xl p-8 shadow-2xl transform transition-transform duration-700 hover:scale-[1.01]">
+              {error && (
+                <p className="text-red-500 text-center mb-4">{error}</p>
+              )}
+              <form onSubmit={handleSubmit(login)} className="space-y-4">
+                <Input
+                  label="Email"
+                  placeholder="your@email.com"
+                  type="email"
+                  {...register("email", { required: true })}
+                />
+                <Input
+                  label="Password"
+                  type="password"
+                  placeholder="Enter your password"
+                  {...register("password", { required: true })}
+                />
+                <Button type="submit" className="w-full">
+                  Sign in
+                </Button>
+              </form>
+            </div>
+
+            <p className="mt-4 text-center text-sm text-slate-500">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-slate-200 hover:text-white">
+                Sign Up
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

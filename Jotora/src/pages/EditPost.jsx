@@ -20,12 +20,17 @@ function EditPost() {
     }
   }, [slug, navigate]);
   return post ? (
-    <div className="py-8">
+    <div className="min-h-screen py-12 bg-black text-slate-100">
       <Container>
-        <PostForm post={post} />
+        <div className="max-w-3xl mx-auto bg-slate-900/50 backdrop-blur rounded-2xl p-8 shadow-2xl">
+          <h2 className="text-2xl font-semibold mb-4">Edit post</h2>
+          <PostForm post={post} />
+        </div>
       </Container>
     </div>
-  ) : null;
+  ) : (
+    <div className="py-12 text-center text-slate-300">Loading...</div>
+  );
 }
 
 export default EditPost;

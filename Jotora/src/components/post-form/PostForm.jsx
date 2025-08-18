@@ -1,7 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "..";
-import appwriteService, { account } from "../../appwrite/config";
+import appwriteService from "../../appwrite/config";
+import authService from "../../appwrite/auth";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -20,27 +21,42 @@ export default function PostForm({ post }) {
   const userData = useSelector((state) => state.auth.userData);
 
   const submit = async (data) => {
-    const user = await account.get();
-    console.log("User data:", user);
     try {
-      if (!user || !user.$id) {
-        throw new Error("User not logged in. Cannot create post.");
+      // --- UPDATE POST LOGIC ---
+      if (post) {
+        let imageId = post.featuredImage;
+        if (data.image && data.image[0]) {
+          const newFile = await appwriteService.uploadFile(data.image[0]);
+          if (newFile) {
+            await appwriteService.deleteFile(post.featuredImage);
+            imageId = newFile.$id;
+          }
+        }
+        const postData = { ...data, featuredImage: imageId };
+        const dbPost = await appwriteService.updatePost(post.$id, postData);
+        if (dbPost) navigate(`/post/${dbPost.$id}`);
       }
-
-      let file = null;
-      if (data.image && data.image[0]) {
-        file = await appwriteService.uploadFile(data.image[0], user.$id);
-        data.featuredImage = file.$id;
-      }
-
-      const dbPost = await appwriteService.createPost({
-        ...data,
-        user: user.$id,
-        status: "active",
-      });
-
-      if (dbPost) {
-        navigate(`/post/${dbPost.$id}`);
+      // --- CREATE NEW POST LOGIC ---
+      else {
+        if (!data.image || !data.image[0]) {
+          throw new Error("Featured Image is required for a new post.");
+        }
+        const file = await appwriteService.uploadFile(data.image[0]);
+        const user = await authService.getCurrentUser();
+        console.log("Current user:", user);
+        if (!user || !user.$id) {
+          throw new Error("User not authenticated. Please log in.");
+        }
+        if (file) {
+          const fileId = file.$id;
+          const postData = {
+            ...data,
+            featuredImage: fileId,
+            user: user.$id, // Pass only user ID as string
+          };
+          const dbPost = await appwriteService.createPost(postData);
+          if (dbPost) navigate(`/post/${dbPost.$id}`);
+        }
       }
     } catch (err) {
       console.error("Error in submit:", err.message || err);
@@ -54,17 +70,15 @@ export default function PostForm({ post }) {
         .toLowerCase()
         .replace(/[^a-zA-Z\d\s]+/g, "-")
         .replace(/\s/g, "-");
-
     return "";
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === "title") {
         setValue("slug", slugTransform(value.title), { shouldValidate: true });
       }
     });
-
     return () => subscription.unsubscribe();
   }, [watch, slugTransform, setValue]);
 
@@ -82,11 +96,11 @@ export default function PostForm({ post }) {
           placeholder="Slug"
           className="mb-4"
           {...register("slug", { required: true })}
-          onInput={(e) => {
+          onInput={(e) =>
             setValue("slug", slugTransform(e.currentTarget.value), {
               shouldValidate: true,
-            });
-          }}
+            })
+          }
         />
         <RTE
           label="Content :"
@@ -103,17 +117,6 @@ export default function PostForm({ post }) {
           accept="image/png, image/jpg, image/jpeg, image/gif"
           {...register("image", { required: !post })}
         />
-        {post && (
-          <div className="w-full mb-4">
-            <img
-              src={src}
-              alt={title || "Post image"}
-              loading="lazy"
-              onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-              className="w-full aspect-[4/3] object-cover rounded-xl bg-gray-200"
-            />
-          </div>
-        )}
         <Select
           options={["active", "inactive"]}
           label="Status"

@@ -5,15 +5,19 @@ import { Link } from "react-router-dom";
 function PostCard({ $id, title, featuredImage }) {
   return (
     <Link to={`/post/${$id}`}>
-      <div className="w-full bg-gray-100 rounded-xl p-4">
-        <div className="w-full justify-center mb-4">
-          <img
-            src={appwriteService.getFileView(featuredImage)} // ✅ raw file instead of preview
-            alt={title}
-            className="w-full h-48 object-cover rounded-xl" // ✅ ensures proper sizing
-          />
+      <div className="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-white transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-600/20">
+        <div className="w-full justify-center mb-4 h-40">
+          {featuredImage ? (
+            <img
+              src={appwriteService.getFileView(featuredImage)}
+              alt={title}
+              className="rounded-lg w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-700 rounded-lg"></div>
+          )}
         </div>
-        <h2 className="text-xl font-bold">{title}</h2>
+        <h2 className="text-xl font-bold truncate">{title}</h2>
       </div>
     </Link>
   );

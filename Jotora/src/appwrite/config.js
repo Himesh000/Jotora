@@ -5,9 +5,10 @@ import {
   Databases,
   Storage,
   Account,
+  ID,
+  Query,
   Permission,
   Role,
-  ID,
 } from "appwrite";
 export class Service {
   client = new Client();
@@ -114,18 +115,19 @@ export class Service {
     }
   }
 
-  async getPosts({ queries = [Query.equal("status", "active")] } = {}) {
+  async getPosts(queries = [Query.equal("status", "active")]) {
     try {
       const response = await this.databases.listDocuments(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
         queries
       );
-      console.log("Posts fetched successfully:", response);
+      // ✅ Return the array of documents directly
       return response.documents;
     } catch (error) {
       console.error("Error fetching posts:", error);
-      throw error;
+      // ✅ Return an empty array on failure to prevent crashes
+      return [];
     }
   }
 
@@ -138,6 +140,7 @@ export class Service {
         conf.appwriteBucketId,
         ID.unique(),
         file,
+        [Permission.read(Role.any())]
       );
       console.log("File uploaded successfully:", response);
       return response;
@@ -161,16 +164,11 @@ export class Service {
     }
   }
 
-  async getFileView(fileId) {
+  getFileView(fileId) {
     try {
-      const response = await this.bucket.getFileView(
-        conf.appwriteBucketId,
-        fileId
-      );
-      console.log("File view fetched successfully:", response);
-      return response;
+      return this.bucket.getFileView(conf.appwriteBucketId, fileId);
     } catch (error) {
-      console.error("Error fetching file preview:", error);
+      console.error("Error fetching file view:", error);
       throw error;
     }
   }
