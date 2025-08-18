@@ -40,17 +40,17 @@ export default function SplineComponent() {
   if (ok === null) return null;
 
   if (ok === true) {
-    return <Spline scene={SCENE_URL} />;
+    // ✅ Add 'pointer-events-none' to make the canvas ignore mouse/scroll events
+    return <Spline scene={SCENE_URL} className="pointer-events-none" />;
   }
 
   // fallback: a subtle animated gradient background that matches the theme
   return (
     <div
       aria-hidden="true"
-      className="w-full h-full bg-gradient-to-r from-black via-slate-900 to-black">
+      // ✅ Also add 'pointer-events-none' to the fallback for consistency
+      className="w-full h-full bg-gradient-to-r from-black via-slate-900 to-black pointer-events-none">
       <div className="absolute inset-0 opacity-30 bg-gradient-to-tr from-purple-700 via-sky-700 to-pink-700 animate-[gradientShift_8s_linear_infinite]" />
     </div>
   );
 }
-
-/* Tailwind-style animation utility (kept inline for compatibility in case no global CSS) */
